@@ -1,7 +1,7 @@
   const userModel = require('../models/user.model');
   const bcrypt = require('bcrypt');
   const jwt = require('jsonwebtoken')
-
+  const redis = require('../db/redis')
 
   async function registerUser(req, res) {
   
@@ -108,6 +108,31 @@
       user : req.user
     })
   }
+  async function logoutUser(req, res) {
+  const token = req.cookies.token;
+// blacklist is a mechanism to invalidate JWT tokens before their expiration time. When a user logs out, the token is added to a blacklist stored in Redis. This way, even if the token is still valid, it will be considered invalid for future requests.
+  try {
+    if (token) {
+      await redis.set(
+        `blacklist:${token}`,
+        "true",
+        "EX",
+        24 * 60 * 60
+      );
+    }
+  } catch (error) {
+    console.error("Redis error while blacklisting token:", error);
+  }
+
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+  });
+
+  return res.status(200).json({
+    message: "Logout successful",
+  });
+}
 
 
-  module.exports = { registerUser, loginUser,getCurrentUser };
+  module.exports = { registerUser, loginUser,getCurrentUser, logoutUser };

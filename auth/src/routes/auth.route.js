@@ -9,6 +9,7 @@ router.post("/register",validators.registerUserValidations,authController.regist
 router.post("/login", validators.loginUserValidations, authController.loginUser);
 // PROFILE API
 router.get('/me',authMiddleware.authMiddleware,authController.getCurrentUser);
-
+// LOGOUT API
+router.get('/logout',authMiddleware.authMiddleware,authController.logoutUser);
 
 module.exports = router;

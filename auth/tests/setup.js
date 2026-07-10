@@ -1,9 +1,12 @@
+require("dotenv").config();
+
 const mongoose = require("mongoose");
 const { MongoMemoryServer } = require("mongodb-memory-server");
 
 let mongod;
 
 beforeAll(async () => {
+  process.env.NODE_ENV = process.env.NODE_ENV || "test";
   process.env.JWT_SECRET = "test-secret";
 
   mongod = await MongoMemoryServer.create();
