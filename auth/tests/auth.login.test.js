@@ -1,30 +1,8 @@
 const request = require("supertest");
-const mongoose = require("mongoose");
-const { MongoMemoryServer } = require("mongodb-memory-server");
+const app = require("../src/app");
 
-let app;
-let mongod;
+require("./setup");
 
-beforeAll(async () => {
-     process.env.JWT_SECRET = "test-secret"; 
-  mongod = await MongoMemoryServer.create();
-  process.env.MONGO_URI = mongod.getUri();
-  // connect to DB using existing connect function
-  await require("../src/db/db")();
-  app = require("../src/app");
-});
-
-afterAll(async () => {
-  await mongoose.disconnect();
-  if (mongod) await mongod.stop();
-});
-
-afterEach(async () => {
-  const collections = await mongoose.connection.db.collections();
-  for (let coll of collections) {
-    await coll.deleteMany({});
-  }
-});
 describe("POST /auth/login", () => {
   it("logs in a registered user using email", async () => {
     const payload = {
@@ -47,6 +25,7 @@ describe("POST /auth/login", () => {
       });
 
     expect(res.status).toBe(200);
+
     expect(res.body).toHaveProperty("user");
     expect(res.body.user.email).toBe(payload.email);
     expect(res.body.user.username).toBe(payload.username);
@@ -77,8 +56,12 @@ describe("POST /auth/login", () => {
       });
 
     expect(res.status).toBe(200);
+
     expect(res.body.user.username).toBe(payload.username);
+    expect(res.body.user).not.toHaveProperty("password");
+
     expect(res.headers["set-cookie"]).toBeDefined();
+    expect(res.headers["set-cookie"][0]).toContain("token=");
   });
 
   it("rejects invalid password", async () => {
@@ -133,6 +116,18 @@ describe("POST /auth/login", () => {
       .post("/auth/login")
       .send({
         email: "login@example.com",
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("errors");
+  });
+
+  it("rejects invalid email format", async () => {
+    const res = await request(app)
+      .post("/auth/login")
+      .send({
+        email: "invalid-email",
+        password: "Password123",
       });
 
     expect(res.status).toBe(400);
