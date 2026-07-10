@@ -102,6 +102,9 @@
       return res.status(500).json({ message: 'An internal server error occurred' });
     }
   }
+  async function getCurrentUser(req,res) {
+    
+  }
 
 
   module.exports = { registerUser, loginUser };
