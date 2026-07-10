@@ -103,8 +103,11 @@
     }
   }
   async function getCurrentUser(req,res) {
-    
+    return res.status(200).json({
+      message : "User Profile Succesfully fetched",
+      user : req.user
+    })
   }
 
 
-  module.exports = { registerUser, loginUser };
+  module.exports = { registerUser, loginUser,getCurrentUser };
