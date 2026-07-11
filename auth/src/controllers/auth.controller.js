@@ -203,5 +203,39 @@
     });
   }
   }
+  async function deleteAddress(req, res) {
+  const id = req.user.id;
+  const { addressId } = req.params;
+  try {
+    const user = await userModel.findById(id);  
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
 
-  module.exports = { registerUser, loginUser,getCurrentUser, logoutUser, createAddress };
+    const addressIndex = user.addresses.findIndex(
+      (address) => address._id.toString() === addressId
+    );
+
+    if (addressIndex === -1) {
+      return res.status(404).json({
+        message: "Address not found",
+      });
+    }
+
+    user.addresses.splice(addressIndex, 1);
+    await user.save();
+
+    return res.status(200).json({
+      message: "Address deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting address:", error);
+
+    return res.status(500).json({
+      message: "An internal server error occurred",
+    });
+  }
+  }
+  module.exports = { registerUser, loginUser,getCurrentUser, logoutUser, createAddress, getAddress, deleteAddress };
