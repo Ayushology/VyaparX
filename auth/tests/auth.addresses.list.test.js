@@ -6,6 +6,7 @@ require("./setup");
 
 const createAuthenticatedUser = async () => {
   const unique = Date.now();
+
   const payload = {
     username: `addrlist_${unique}`,
     email: `addrlist_${unique}@example.com`,
@@ -18,10 +19,12 @@ const createAuthenticatedUser = async () => {
 
   await request(app).post("/auth/register").send(payload);
 
-  const loginRes = await request(app).post("/auth/login").send({
-    email: payload.email,
-    password: payload.password,
-  });
+  const loginRes = await request(app)
+    .post("/auth/login")
+    .send({
+      email: payload.email,
+      password: payload.password,
+    });
 
   return {
     payload,
@@ -30,10 +33,11 @@ const createAuthenticatedUser = async () => {
 };
 
 describe("GET /auth/users/me/addresses", () => {
-  it("lists saved addresses and marks the default address", async () => {
+  it("returns all saved addresses with the default address", async () => {
     const { payload, cookies } = await createAuthenticatedUser();
 
     const user = await User.findOne({ email: payload.email });
+
     user.addresses = [
       {
         street: "123 Main Street",
@@ -60,11 +64,55 @@ describe("GET /auth/users/me/addresses", () => {
       .set("Cookie", cookies);
 
     expect(res.status).toBe(200);
+
+    expect(res.body).toHaveProperty("message");
     expect(res.body).toHaveProperty("addresses");
+
+    expect(Array.isArray(res.body.addresses)).toBe(true);
     expect(res.body.addresses).toHaveLength(2);
-    expect(res.body.addresses.some((address) => address.isDefault)).toBe(true);
-    expect(res.body.addresses.find((address) => address.isDefault).street).toBe(
-      "123 Main Street",
+
+    expect(res.body.addresses[0]).toHaveProperty("_id");
+    expect(res.body.addresses[0]).toHaveProperty("street");
+    expect(res.body.addresses[0]).toHaveProperty("city");
+    expect(res.body.addresses[0]).toHaveProperty("state");
+    expect(res.body.addresses[0]).toHaveProperty("zip");
+    expect(res.body.addresses[0]).toHaveProperty("country");
+    expect(res.body.addresses[0]).toHaveProperty("isDefault");
+
+    const defaultAddress = res.body.addresses.find(
+      (address) => address.isDefault
     );
+
+    expect(defaultAddress).toBeDefined();
+    expect(defaultAddress.street).toBe("123 Main Street");
+  });
+
+  it("returns an empty array when the user has no saved addresses", async () => {
+    const { cookies } = await createAuthenticatedUser();
+
+    const res = await request(app)
+      .get("/auth/users/me/addresses")
+      .set("Cookie", cookies);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("addresses");
+    expect(res.body.addresses).toEqual([]);
+  });
+
+  it("rejects an unauthenticated request", async () => {
+    const res = await request(app)
+      .get("/auth/users/me/addresses");
+
+    expect(res.status).toBe(401);
+    expect(res.body).toHaveProperty("message");
+  });
+
+  it("rejects an invalid token", async () => {
+    const res = await request(app)
+      .get("/auth/users/me/addresses")
+      .set("Cookie", ["token=invalid.jwt.token"]);
+
+    expect(res.status).toBe(401);
+    expect(res.body).toHaveProperty("message");
   });
 });
