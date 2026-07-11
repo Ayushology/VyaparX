@@ -132,7 +132,51 @@
   return res.status(200).json({
     message: "Logout successful",
   });
+  }
+  async function createAddress(req, res) {
+  const id = req.user.id;
+
+  const { street, city, state, zip, country, isDefault } = req.body;
+
+  try {
+    const user = await userModel.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    // If this address is the default one,
+    // remove the default flag from existing addresses.
+    if (isDefault) {
+      user.addresses.forEach((address) => {
+        address.isDefault = false;
+      });
+    }
+
+    user.addresses.push({
+      street,
+      city,
+      state,
+      zip,
+      country,
+      isDefault,
+    });
+
+    await user.save();
+
+    return res.status(201).json({
+      message: "Address created successfully",
+      address: user.addresses[user.addresses.length - 1],
+    });
+  } catch (error) {
+    console.error("Error creating address:", error);
+
+    return res.status(500).json({
+      message: "An internal server error occurred",
+    });
+  }
 }
 
-
-  module.exports = { registerUser, loginUser,getCurrentUser, logoutUser };
+  module.exports = { registerUser, loginUser,getCurrentUser, logoutUser, createAddress };

@@ -94,4 +94,64 @@ const loginUserValidations = [
   respondWithValidationResult
 ];
 
-module.exports = {registerUserValidations, loginUserValidations}
+const createAddressValidations = [
+  body("street")
+    .trim()
+    .notEmpty()
+    .withMessage("Street is required")
+    .bail()
+    .isString()
+    .withMessage("Street must be a valid string")
+    .bail()
+    .isLength({ min: 5, max: 100 })
+    .withMessage("Street must be between 5 and 100 characters"),
+
+  body("city")
+    .trim()
+    .notEmpty()
+    .withMessage("City is required")
+    .bail()
+    .isString()
+    .withMessage("City must be a valid string")
+    .bail()
+    .isLength({ min: 2, max: 50 })
+    .withMessage("City must be between 2 and 50 characters"),
+
+  body("state")
+    .trim()
+    .notEmpty()
+    .withMessage("State is required")
+    .bail()
+    .isString()
+    .withMessage("State must be a valid string")
+    .bail()
+    .isLength({ min: 2, max: 50 })
+    .withMessage("State must be between 2 and 50 characters"),
+
+  body("zip")
+    .trim()
+    .notEmpty()
+    .withMessage("ZIP code is required")
+    .bail()
+    .matches(/^\d{6}$/)
+    .withMessage("ZIP code must be a valid 6-digit Indian PIN code"),
+
+  body("country")
+    .trim()
+    .notEmpty()
+    .withMessage("Country is required")
+    .bail()
+    .isString()
+    .withMessage("Country must be a valid string")
+    .bail()
+    .isLength({ min: 2, max: 50 })
+    .withMessage("Country must be between 2 and 50 characters"),
+
+  body("isDefault")
+    .optional()
+    .isBoolean()
+    .withMessage("isDefault must be a boolean"),
+
+  respondWithValidationResult,
+];
+module.exports = {registerUserValidations, loginUserValidations,createAddressValidations}
