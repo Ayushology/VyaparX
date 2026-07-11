@@ -11,5 +11,6 @@ router.post("/login", validators.loginUserValidations, authController.loginUser)
 router.get('/me',authMiddleware.authMiddleware,authController.getCurrentUser);
 // LOGOUT API
 router.get('/logout',authMiddleware.authMiddleware,authController.logoutUser);
-
+// ADDRESS APIs
+router.post('/users/me/addresses',authMiddleware.authMiddleware,validators.createAddressValidations,authController.createAddress);
 module.exports = router;
