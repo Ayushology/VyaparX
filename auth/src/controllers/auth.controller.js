@@ -2,7 +2,7 @@
   const bcrypt = require('bcrypt');
   const jwt = require('jsonwebtoken')
   const redis = require('../db/redis')
-
+// REGISTER CONTROLLER
   async function registerUser(req, res) {
   
     try {
@@ -62,6 +62,7 @@
       });
     }
   }
+// LOGIN CONTROLLER
   async function loginUser(req, res) {
     try {
       const { username,email, password } = req.body;
@@ -102,12 +103,14 @@
       return res.status(500).json({ message: 'An internal server error occurred' });
     }
   }
+// GET CURRENT USER CONTROLLER
   async function getCurrentUser(req,res) {
     return res.status(200).json({
       message : "User Profile Succesfully fetched",
       user : req.user
     })
   }
+// LOGOUT CONTROLLER
   async function logoutUser(req, res) {
   const token = req.cookies.token;
 // blacklist is a mechanism to invalidate JWT tokens before their expiration time. When a user logs out, the token is added to a blacklist stored in Redis. This way, even if the token is still valid, it will be considered invalid for future requests.
@@ -133,6 +136,7 @@
     message: "Logout successful",
   });
   }
+// CREATE ADDRESS CONTROLLER
   async function createAddress(req, res) {
   const id = req.user.id;
 
@@ -178,6 +182,7 @@
     });
   }
   }
+// GET ADDRESS CONTROLLER
   async function getAddress(req, res) {
   const id = req.user.id;
 
@@ -203,6 +208,7 @@
     });
   }
   }
+// DELETE ADDRESS CONTROLLER
   async function deleteAddress(req, res) {
   const id = req.user.id;
   const { addressId } = req.params;
