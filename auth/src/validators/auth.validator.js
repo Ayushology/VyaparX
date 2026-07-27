@@ -9,7 +9,7 @@ const respondWithValidationResult = (req,res,next) => {
     }
     next();
 }
-
+// REGISTER USER VALIDATIONS
 const registerUserValidations = [
 
     body("username")
@@ -55,7 +55,7 @@ const registerUserValidations = [
         .withMessage("It must be a valid string"),
         respondWithValidationResult
 ]
-
+// LOGIN USER VALIDATIONS
 const loginUserValidations = [
   body("username")
     .optional()
@@ -93,7 +93,7 @@ const loginUserValidations = [
 
   respondWithValidationResult
 ];
-
+// CREATE ADDRESS VALIDATIONS
 const createAddressValidations = [
   body("street")
     .trim()
