@@ -1,2 +1,7 @@
 auth/node_modules/
+product/node_modules/
+order/node_modules/
+
 auth/.env
+product/.env
+order/.env
