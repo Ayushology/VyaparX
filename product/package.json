@@ -18,7 +18,8 @@
     "imagekit": "^4.0.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.8.1",
-    "multer": "^2.1.0"
+    "multer": "^2.1.0",
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
     "jest": "^29.7.0",

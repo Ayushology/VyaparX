@@ -9,14 +9,17 @@ const imagekit = new ImageKit({
 async function uploadImage(fileBuffer, fileName, folder = "/products") {
   if (!fileBuffer || !fileName) {
     throw new Error(
-      "File buffer and file name are required to upload an image.",
+      "File buffer and file name are required to upload an image."
     );
   }
 
   const response = await imagekit.upload({
-    file: fileBuffer.toString("base64"),
-    fileName,
+    file: fileBuffer,
+    fileName,                 
     folder,
+    useUniqueFileName: true,  
+
+    // ! ImageKit automatically appends a unique hash before the extension
   });
 
   return {
