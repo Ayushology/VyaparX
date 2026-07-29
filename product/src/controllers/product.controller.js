@@ -1,4 +1,5 @@
-const Product = require("../models/product.model");
+const ProductModel = require("../models/product.model");
+const Product = ProductModel.default || ProductModel;
 const { uploadImage } = require("../services/imagekit.service");
 
 async function createProduct(req, res) {
@@ -52,9 +53,7 @@ async function createProduct(req, res) {
     }
 
     const uploadedImages = await Promise.all(
-      req.files.map((file) =>
-        uploadImage(file.buffer, file.originalname)
-      )
+      req.files.map((file) => uploadImage(file.buffer, file.originalname)),
     );
 
     const formattedImages = uploadedImages.map((img) => ({
