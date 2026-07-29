@@ -79,14 +79,15 @@ async function createProduct(req, res) {
       success: true,
       data: product,
     });
-  } catch (error) {
-    console.error("Error creating product:", error.message);
+  }catch (error) {
+  console.error(error);   // Print the full stack trace
 
-    return res.status(500).json({
-      success: false,
-      message: "Could not create product.",
-    });
-  }
+  return res.status(500).json({
+    success: false,
+    message: error.message,
+    stack: error.stack, // temporarily for debugging
+  });
+}
 }
 
 module.exports = { createProduct };
