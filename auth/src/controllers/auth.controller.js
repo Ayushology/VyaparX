@@ -6,12 +6,18 @@
   async function registerUser(req, res) {
   
     try {
-      const { username, email, password, fullName: { firstName, lastName } } = req.body;
+      const { username, email, password,role = 'buyer',fullName: { firstName, lastName } } = req.body;
+      
+      if(!username || !email || !password || !firstName){
+        return res
+            .status(400)
+            .json({message: "Missing required fields."});
+      }
 
       const ifUserAlreadyExists = await userModel.findOne({
         $or: [
-          { username },
-          { email }
+        {username: username.toLowerCase()},
+        {email: email.toLowerCase()}
         ]
       });
 
@@ -27,6 +33,7 @@
         username,
         email,
         password: hash,
+        role,
         fullName: {
           firstName, lastName
         }
@@ -42,6 +49,7 @@
       res.cookie("token",token,{
         httpOnly : true,
         secure : true,
+        sameSite : strict,
         maxAge : 24*60*60*1000
       });
     
@@ -51,6 +59,7 @@
           _id: user._id,
           username: user.username,
           email: user.email,
+          role: user.role,
           fullName: user.fullName
         }
       });
@@ -65,13 +74,20 @@
 // LOGIN CONTROLLER
   async function loginUser(req, res) {
     try {
-      const { username,email, password } = req.body;
+      const {username,email, password} = req.body;
+
+      if (!password || (!username && !email)){
+      return res.status(400).json({message: "Please provide credentials and password."});
+    }
+    
       const user = await userModel.findOne({ $or :[{username},{email}] }).select('+password');
+
       if (!user) {
         return res.status(401).json({ message: 'Invalid credentials' });
       }
 
       const match = await bcrypt.compare(password, user.password);
+
       if (!match) {
         return res.status(401).json({ message: 'Invalid credentials' });
       }
@@ -86,6 +102,7 @@
       res.cookie('token', token, {
         httpOnly: true,
         secure: true,
+        sameSite: 'strict',
         maxAge: 24 * 60 * 60 * 1000
       });
 
@@ -95,6 +112,7 @@
           _id: user._id,
           username: user.username,
           email: user.email,
+          role : user.role,
           fullName: user.fullName
         }
       });
@@ -113,15 +131,28 @@
 // LOGOUT CONTROLLER
   async function logoutUser(req, res) {
   const token = req.cookies.token;
-// blacklist is a mechanism to invalidate JWT tokens before their expiration time. When a user logs out, the token is added to a blacklist stored in Redis. This way, even if the token is still valid, it will be considered invalid for future requests.
+
+  // blacklist is a mechanism to invalidate JWT tokens before their expiration time.
+  // When a user logs out, the token is added to a blacklist stored in Redis.
+  // This way, even if the token is still valid, it will be considered invalid for future requests.
+
   try {
     if (token) {
-      await redis.set(
-        `blacklist:${token}`,
-        "true",
-        "EX",
-        24 * 60 * 60
-      );
+      const decoded = jwt.decode(token);
+
+      if (decoded && decoded.exp) {
+        const nowInSeconds = Math.floor(Date.now() / 1000);
+        const remainingTime = decoded.exp - nowInSeconds;
+
+        if (remainingTime > 0) {
+          await redis.set(
+            `blacklist:${token}`,
+            "true",
+            "EX",
+            remainingTime
+          );
+        }
+      }
     }
   } catch (error) {
     console.error("Redis error while blacklisting token:", error);
@@ -130,12 +161,13 @@
   res.clearCookie("token", {
     httpOnly: true,
     secure: true,
+    sameSite: "strict",
   });
 
   return res.status(200).json({
     message: "Logout successful",
   });
-  }
+}
 // CREATE ADDRESS CONTROLLER
   async function createAddress(req, res) {
   const id = req.user.id;
