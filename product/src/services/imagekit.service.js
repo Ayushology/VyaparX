@@ -17,7 +17,7 @@ async function uploadImage(fileBuffer, fileName, folder = "/products") {
     file: fileBuffer,
     fileName,                 
     folder,
-    useUniqueFileName: true,  
+    useUniqueFileName: true, 
 
     // ! ImageKit automatically appends a unique hash before the extension
   });
