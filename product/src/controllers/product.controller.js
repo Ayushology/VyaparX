@@ -258,6 +258,5 @@ async function getProductById(req, res) {
 module.exports = {
   createProduct,
   getProduct,
-  getProducts: getProduct,
   getProductById,
 };
