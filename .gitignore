@@ -1,7 +1,7 @@
 auth/node_modules/
 product/node_modules/
 order/node_modules/
-
+coverage/
 auth/.env
 product/.env
 order/.env
