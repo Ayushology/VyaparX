@@ -7,7 +7,6 @@ const { validateCreateProduct } = require("../validators/product.validator");
 const router = express.Router();
 
 
-
 router.post(
   "/",
   createAuthMiddleware(["admin", "seller"]),
@@ -15,5 +14,13 @@ router.post(
   validateCreateProduct,
   productController.createProduct,
 );
+
+
+router.get(
+  "/",
+   productController.getProduct
+  );
+
+  
 
 module.exports = router;
