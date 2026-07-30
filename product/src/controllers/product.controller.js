@@ -1,6 +1,7 @@
 const ProductModel = require("../models/product.model");
 const escapeRegex = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const { uploadImage } = require("../services/imagekit.service");
+const mongoose = require("mongoose");
 
 async function createProduct(req, res) {
   try {
@@ -79,17 +80,16 @@ async function createProduct(req, res) {
       success: true,
       data: product,
     });
-  }catch (error) {
-  console.error(error);   // Print the full stack trace
+  } catch (error) {
+    console.error(error); // Print the full stack trace
 
-  return res.status(500).json({
-    success: false,
-    message: error.message,
-    stack: error.stack, // temporarily for debugging
-  });
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+      stack: error.stack, // temporarily for debugging
+    });
+  }
 }
-}
-
 async function getProduct(req, res) {
   try {
     const {
@@ -103,9 +103,8 @@ async function getProduct(req, res) {
 
     const filter = {};
 
-    
     // Search by product title
-   
+
     if (q) {
       const safeQuery = escapeRegex(q.trim());
 
@@ -121,7 +120,6 @@ async function getProduct(req, res) {
       };
     }
 
-    
     // Filter by category
     if (category) {
       filter.category = category.trim();
@@ -145,7 +143,6 @@ async function getProduct(req, res) {
       category equals "Electronics"
     */
 
-   
     // Filter by price range
     // =========================
     if (minPrice || maxPrice) {
@@ -224,5 +221,43 @@ async function getProduct(req, res) {
     });
   }
 }
+async function getProductById(req, res) {
+  try {
+    const { id } = req.params;
 
-module.exports = { createProduct, getProduct };
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product ID format.",
+      });
+    }
+
+    const product = await ProductModel.findById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "No product found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      product,
+    });
+  } catch (err) {
+    console.error("Error fetching product by ID:", err.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch product details.",
+    });
+  }
+}
+
+module.exports = {
+  createProduct,
+  getProduct,
+  getProducts: getProduct,
+  getProductById,
+};

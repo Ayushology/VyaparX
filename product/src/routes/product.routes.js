@@ -6,21 +6,11 @@ const { uploadProductImages } = require("../middlewares/upload.middleware");
 const { validateCreateProduct } = require("../validators/product.validator");
 const router = express.Router();
 
-
-router.post(
-  "/",
-  createAuthMiddleware(["admin", "seller"]),
-  uploadProductImages,
-  validateCreateProduct,
-  productController.createProduct,
-);
-
-
-router.get(
-  "/",
-   productController.getProduct
-  );
-
-  
+// POST /api/products
+router.post("/",createAuthMiddleware(["admin", "seller"]),uploadProductImages, validateCreateProduct, productController.createProduct);
+// GET /api/products
+router.get("/", productController.getProduct);
+// GET /api/products/:id
+router.get("/:id", productController.getProductById);
 
 module.exports = router;
