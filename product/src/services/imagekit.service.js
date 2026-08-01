@@ -29,4 +29,32 @@ async function uploadImage(fileBuffer, fileName, folder = "/products") {
   };
 }
 
-module.exports = { uploadImage };
+async function deleteImage(fileId) {
+  if (!fileId) {
+    throw new Error("A valid fileId is required for ImageKit deletion.");
+  }
+
+  try {
+    const response = await imagekit.deleteFile(fileId);
+    return response;
+  } catch (error) {
+    console.warn(`[ImageKit Warning] Failed to delete image ${fileId}:`, error.message);
+    throw error;
+  }
+}
+
+async function deleteBulkImages(fileIds = []) {
+  if (!Array.isArray(fileIds) || fileIds.length === 0) {
+    return null;
+  }
+
+  try {
+    const response = await imagekit.bulkDeleteFiles(fileIds);
+    return response;
+  } catch (error) {
+    console.warn("[ImageKit Warning] Bulk deletion failed:", error.message);
+    throw error;
+  }
+}
+
+module.exports = { uploadImage , deleteBulkImages , deleteImage };

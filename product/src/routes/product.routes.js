@@ -15,7 +15,9 @@ router.get("/", productController.getProduct);
 router.get("/:id", productController.getProductById);
 // PATCH /api/products/:id
 router.patch("/:id", createAuthMiddleware(["admin", "seller"]), uploadProductImages, validateUpdateProduct,productController.updateProduct);
-
+// DELETE /api/products/:id
+router.delete("/:id",createAuthMiddleware(["seller","admin"]),productController.deleteProduct);
 module.exports = router;
+
 
 

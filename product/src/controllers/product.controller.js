@@ -1,6 +1,7 @@
 const ProductModel = require("../models/product.model");
 const escapeRegex = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const { uploadImage } = require("../services/imagekit.service");
+const { deleteBulkImages } = require("../services/imagekit.service")
 const mongoose = require("mongoose");
 
 async function createProduct(req, res) {
@@ -327,11 +328,71 @@ async function updateProduct(req, res) {
     });
   }
 }
+async function deleteProduct(req, res) {
+  try {
+    const { id } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product ID format.",
+      });
+    }
+
+    const product = await ProductModel.findById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found.",
+      });
+    }
+
+    if (
+      product.seller.toString() !== req.user.id &&
+      req.user.role !== "admin"
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden: You can delete only your products.",
+      });
+    }
+
+    if (product.images && product.images.length > 0) {
+      const fileIds = product.images
+        .map((img) => img.id)
+        .filter((id) => Boolean(id));
+
+      if (fileIds.length > 0) {
+        await deleteBulkImages(fileIds).catch((err) =>
+          console.warn(
+            "[Delete Controller Warning] Cloud image cleanup encountered an issue:",
+            err.message
+          )
+        );
+      }
+    }
+
+    await product.deleteOne();
+
+    return res.status(200).json({
+      success: true,
+      message: "Product deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Delete Product Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+    });
+  }
+}
 
 module.exports = {
   createProduct,
   getProduct,
   getProductById,
   updateProduct,
+  deleteProduct,
 };
