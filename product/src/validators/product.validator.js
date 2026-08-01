@@ -3,9 +3,7 @@ const { body, validationResult } = require("express-validator");
 const ALLOWED_CURRENCIES = ["INR", "USD"];
 
 const validateCreateProduct = [
-  
-
-  body("title")
+    body("title")
     .trim()
     .notEmpty()
     .withMessage("Title is required")

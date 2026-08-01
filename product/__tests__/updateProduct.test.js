@@ -27,46 +27,46 @@ describe("PATCH /api/products/:id", () => {
     { id: "seller_1", role: "seller" },
     process.env.JWT_SECRET
   );
+it("updates a product when a seller provides valid fields", async () => {
+  const productId = "507f1f77bcf86cd799439011";
 
-  it("updates a product when a seller provides valid fields", async () => {
-    const productId = "507f1f77bcf86cd799439011";
+  const updatedProduct = {
+    _id: productId,
+    title: "Updated Title",
+    price: 150,
+    category: "Electronics",
+    stock: 5,
+    seller: "seller_1",
+  };
 
-    const existingProduct = {
-      _id: productId,
-      title: "Old Title",
-      price: { amount: 100, currency: "INR" },
-      category: "Electronics",
-      stock: 2,
-      seller: "seller_1",
-    };
+  const existingProduct = {
+    _id: productId,
+    title: "Old Title",
+    price: 100,
+    category: "Electronics",
+    stock: 2,
+    seller: "seller_1",
+    save: jest.fn().mockResolvedValue(updatedProduct),
+  };
 
-    const updatedProduct = {
-      ...existingProduct,
+  Product.findById.mockResolvedValue(existingProduct);
+
+  const response = await request(app)
+    .patch(`/api/products/${productId}`)
+    .set("Authorization", `Bearer ${authToken}`)
+    .send({
       title: "Updated Title",
-      price: { amount: 150, currency: "INR" },
+      price: 150,
       stock: 5,
-    };
+    });
 
-    Product.findById.mockResolvedValue(existingProduct);
-    Product.findByIdAndUpdate.mockResolvedValue(updatedProduct);
+  expect(response.status).toBe(200);
+  expect(response.body.success).toBe(true);
+  expect(response.body.product).toEqual(updatedProduct);
 
-    const response = await request(app)
-      .patch(`/api/products/${productId}`)
-      .set("Authorization", `Bearer ${authToken}`)
-      .send({
-        title: "Updated Title",
-        price: 150,
-        stock: 5,
-      });
-
-    expect(response.status).toBe(200);
-    expect(response.body.success).toBe(true);
-    expect(response.body.product).toEqual(updatedProduct);
-
-    expect(Product.findById).toHaveBeenCalledWith(productId);
-    expect(Product.findByIdAndUpdate).toHaveBeenCalled();
-  });
-
+  expect(Product.findById).toHaveBeenCalledWith(productId);
+  expect(existingProduct.save).toHaveBeenCalled();
+});
   it("returns 400 for an invalid product id format", async () => {
     const response = await request(app)
       .patch("/api/products/not-a-valid-id")
@@ -94,7 +94,7 @@ describe("PATCH /api/products/:id", () => {
 
     expect(response.status).toBe(404);
     expect(response.body.success).toBe(false);
-    expect(response.body.message).toBe("No product found.");
+    expect(response.body.message).toBe("Product not found.");
 
     expect(Product.findById).toHaveBeenCalledWith(productId);
   });
