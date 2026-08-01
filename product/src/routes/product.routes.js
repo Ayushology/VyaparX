@@ -12,13 +12,15 @@ router.post("/",createAuthMiddleware(["admin", "seller"]),uploadProductImages, v
 // GET /api/products
 router.get("/", productController.getProduct);
 // GET /api/products/seller
-router.get("/seller",createAuthMiddleware(["seller"]),productController.getAllProductsbySeller);
+router.get("/seller",createAuthMiddleware(["seller"]),productController.getAllProductsBySeller);
 // GET /api/products/:id
 router.get("/:id", productController.getProductById);
 // PATCH /api/products/:id
 router.patch("/:id", createAuthMiddleware(["admin", "seller"]), uploadProductImages, validateUpdateProduct,productController.updateProduct);
 // DELETE /api/products/:id
 router.delete("/:id",createAuthMiddleware(["seller","admin"]),productController.deleteProduct);
+
+
 module.exports = router;
 
 

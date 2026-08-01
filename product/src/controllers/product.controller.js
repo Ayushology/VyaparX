@@ -388,26 +388,41 @@ async function deleteProduct(req, res) {
     });
   }
 }
-async function getAllProductsbySeller(req, res) {
+async function getAllProductsBySeller(req, res) {
   try {
     const seller = req.user;
     const { skip = 0, limit = 10 } = req.query;
-    
-    const numericSkip = Number(skip);
-    const numericLimit = Number(limit);
+
+    const numericSkip = Math.max(Number(skip) || 0, 0);
+    const numericLimit = Math.max(Number(limit) || 10, 1);
     const safeLimit = Math.min(numericLimit, 20);
 
-    const products = await ProductModel.find({ seller: seller.id })
-      .skip(numericSkip)
-      .limit(safeLimit)
-      .sort({ createdAt: -1 });
+    const filter = { seller: seller.id };
+
+    const [products, totalProducts] = await Promise.all([
+      ProductModel.find(filter)
+        .skip(numericSkip)
+        .limit(safeLimit)
+        .sort({ createdAt: -1 }),
+      ProductModel.countDocuments(filter),
+    ]);
+
+    const totalPages = Math.ceil(totalProducts / safeLimit) || 1;
+    const currentPage = Math.floor(numericSkip / safeLimit) + 1;
 
     return res.status(200).json({
       success: true,
+      pagination: {
+        totalProducts,
+        totalPages,
+        currentPage,
+        count: products.length,
+      },
       products,
     });
   } catch (error) {
-    console.error("Get All Products Error:", error);
+    console.error("Get All Products by Seller Error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Internal server error.",
@@ -420,5 +435,5 @@ module.exports = {
   getProductById,
   updateProduct,
   deleteProduct,
-  getAllProductsbySeller,
+  getAllProductsBySeller,
 };
