@@ -254,9 +254,11 @@ async function getProductById(req, res) {
     });
   }
 }
+async function updateProduct(req, res) {}
 
 module.exports = {
   createProduct,
   getProduct,
   getProductById,
+  updateProduct,
 };
