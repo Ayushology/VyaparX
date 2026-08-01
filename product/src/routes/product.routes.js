@@ -14,6 +14,7 @@ router.get("/", productController.getProduct);
 router.get("/:id", productController.getProductById);
 // PATCH /api/products/:id
 router.patch("/:id", createAuthMiddleware(["admin", "seller"]), uploadProductImages, productController.updateProduct);
+
 module.exports = router;
 
 

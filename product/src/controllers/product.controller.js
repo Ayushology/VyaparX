@@ -254,7 +254,80 @@ async function getProductById(req, res) {
     });
   }
 }
-async function updateProduct(req, res) {}
+async function updateProduct(req, res) {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product ID format.",
+      });
+    }
+
+    const product = await ProductModel.findById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found.",
+      });
+    }
+
+    if (
+      product.seller.toString() !== req.user.id &&
+      req.user.role !== "admin"
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to update this product.",
+      });
+    }
+
+    const allowedFields = [
+      "title",
+      "description",
+      "price",
+      "currency",
+      "category",
+      "stock",
+      "images",
+    ];
+
+    const hasUpdates = allowedFields.some(
+      (field) => req.body[field] !== undefined
+    );
+
+    if (!hasUpdates) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid fields provided for update.",
+      });
+    }
+
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        product[field] = req.body[field];
+      }
+    });
+
+    const updatedProduct = await product.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Product updated successfully.",
+      product: updatedProduct,
+    });
+  } catch (error) {
+    console.error("Update Product Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+    });
+  }
+}
+
 
 module.exports = {
   createProduct,
