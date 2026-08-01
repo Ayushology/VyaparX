@@ -11,6 +11,8 @@ const router = express.Router();
 router.post("/",createAuthMiddleware(["admin", "seller"]),uploadProductImages, validateCreateProduct, productController.createProduct);
 // GET /api/products
 router.get("/", productController.getProduct);
+// GET /api/products/seller
+router.get("/seller",createAuthMiddleware(["seller"]),productController.getAllProductsbySeller);
 // GET /api/products/:id
 router.get("/:id", productController.getProductById);
 // PATCH /api/products/:id

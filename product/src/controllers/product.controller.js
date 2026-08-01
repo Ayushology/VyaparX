@@ -388,11 +388,37 @@ async function deleteProduct(req, res) {
     });
   }
 }
+async function getAllProductsbySeller(req, res) {
+  try {
+    const seller = req.user;
+    const { skip = 0, limit = 10 } = req.query;
+    
+    const numericSkip = Number(skip);
+    const numericLimit = Number(limit);
+    const safeLimit = Math.min(numericLimit, 20);
 
+    const products = await ProductModel.find({ seller: seller.id })
+      .skip(numericSkip)
+      .limit(safeLimit)
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      products,
+    });
+  } catch (error) {
+    console.error("Get All Products Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+    });
+  }
+}
 module.exports = {
   createProduct,
   getProduct,
   getProductById,
   updateProduct,
   deleteProduct,
+  getAllProductsbySeller,
 };
