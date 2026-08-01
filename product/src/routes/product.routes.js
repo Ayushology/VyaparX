@@ -12,7 +12,8 @@ router.post("/",createAuthMiddleware(["admin", "seller"]),uploadProductImages, v
 router.get("/", productController.getProduct);
 // GET /api/products/:id
 router.get("/:id", productController.getProductById);
-
+// PATCH /api/products/:id
+router.patch("/:id", createAuthMiddleware(["admin", "seller"]), uploadProductImages, productController.updateProduct);
 module.exports = router;
 
 
