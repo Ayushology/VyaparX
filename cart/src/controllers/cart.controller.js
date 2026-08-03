@@ -1,5 +1,6 @@
 const cartModel = require("../models/cart.model");
 
+// ADD ITEM TO CART CONTROLLER
 async function addItemToCart(req, res) {
   try {
     const { productId, quantity = 1 } = req.body;
@@ -61,6 +62,7 @@ async function addItemToCart(req, res) {
     });
   }
 }
+// UPDATE ITEM IN CART CONTROLLER
 async function updateItemInCart(req, res) {
   try {
     const { productId } = req.params;
@@ -120,6 +122,7 @@ async function updateItemInCart(req, res) {
     });
   }
 }
+// GET CART CONTROLLER
 async function getCart(req,res) {
    try{
     const user = req.user;
@@ -151,6 +154,7 @@ async function getCart(req,res) {
     })
    }
 };
+// DELETE CART CONTROLLER
 async function deleteCart(req,res){
     try{
         const user = req.user;
@@ -177,6 +181,7 @@ async function deleteCart(req,res){
         });
     }
 };
+// REMOVE ITEM FROM CART CONTROLLER
 async function removeItemFromCart(req, res) {
     try {
         const { productId } = req.params;
