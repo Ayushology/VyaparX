@@ -122,4 +122,35 @@ async function updateItemInCart(req, res) {
   }
 }
 
-module.exports = { addItemToCart, updateItemInCart };
+async function getCart(req,res) {
+   try{
+    const user = req.user;
+
+    const cart = await cartModel.findOne({
+        user : user.id,
+    })
+
+    if(!cart){
+        cart = new cartModel({user:user.id,items : []});
+        await cart.save();
+    }
+    
+    return res.status(200).json({
+        success : true,
+        message : "Cart retrieved successfully",
+        cart : cart,
+        totalItems: {
+            inCart: cart.items.length,
+            totalQuantity: cart.items.reduce((total, item) => total + item.quantity, 0),
+        }
+    })
+
+   }catch(error){
+    console.error(error);
+    return res.status(500).json({
+        success : false,
+        message : "Internal server error",
+    })
+   }
+};
+module.exports = { addItemToCart, updateItemInCart, getCart };
