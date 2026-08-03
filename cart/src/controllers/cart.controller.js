@@ -61,7 +61,6 @@ async function addItemToCart(req, res) {
     });
   }
 }
-
 async function updateItemInCart(req, res) {
   try {
     const { productId } = req.params;
@@ -121,7 +120,6 @@ async function updateItemInCart(req, res) {
     });
   }
 }
-
 async function getCart(req,res) {
    try{
     const user = req.user;
@@ -153,4 +151,57 @@ async function getCart(req,res) {
     })
    }
 };
-module.exports = { addItemToCart, updateItemInCart, getCart };
+async function deleteCart(req,res){
+    try{
+        const user = req.user;
+        const cart = await cartModel.findOne({ user: user.id });
+
+        if (!cart) {
+            return res.status(404).json({
+                success: false,
+                message: "Cart not found",
+            });
+        }
+
+        await cart.remove();
+
+        return res.status(200).json({
+            success: true,
+            message: "Cart deleted successfully",
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+};
+async function removeItemFromCart(req, res) {
+    try {
+        const { productId } = req.params;
+        const user = req.user;  
+        const cart = await cartModel.findOne({ user: user.id });
+        if (!cart) {
+            return res.status(404).json({
+                success: false,
+                message: "Cart not found",
+            });
+        }
+        cart.items = cart.items.filter(item => item.productId.toString() !== productId);
+        await cart.save();
+        return res.status(200).json({
+            success: true,
+            message: "Item removed from cart successfully",
+            cart: cart,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+}   
+
+module.exports = { addItemToCart, updateItemInCart, getCart, deleteCart, removeItemFromCart };
