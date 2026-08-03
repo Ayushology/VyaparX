@@ -4,6 +4,7 @@ const { uploadImage } = require("../services/imagekit.service");
 const { deleteBulkImages } = require("../services/imagekit.service")
 const mongoose = require("mongoose");
 
+// CREATE PRODUCT CONTROLLER
 async function createProduct(req, res) {
   try {
     const {
@@ -91,6 +92,7 @@ async function createProduct(req, res) {
     });
   }
 }
+// GET PRODUCTS CONTROLLER
 async function getProduct(req, res) {
   try {
     const {
@@ -222,6 +224,7 @@ async function getProduct(req, res) {
     });
   }
 }
+// GET PRODUCT BY ID CONTROLLER
 async function getProductById(req, res) {
   try {
     const { id } = req.params;
@@ -255,6 +258,7 @@ async function getProductById(req, res) {
     });
   }
 }
+// UPDATE PRODUCT CONTROLLER
 async function updateProduct(req, res) {
   try {
     const { id } = req.params;
@@ -328,6 +332,7 @@ async function updateProduct(req, res) {
     });
   }
 }
+// DELETE PRODUCT CONTROLLER
 async function deleteProduct(req, res) {
   try {
     const { id } = req.params;
@@ -388,6 +393,7 @@ async function deleteProduct(req, res) {
     });
   }
 }
+// GET ALL PRODUCTS BY SELLER CONTROLLER
 async function getAllProductsBySeller(req, res) {
   try {
     const seller = req.user;
