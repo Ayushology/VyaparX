@@ -83,7 +83,7 @@ describe("POST /api/cart/items", () => {
       .post("/api/cart/items")
       .send({ productId: "product-1", quantity: 2 });
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(201);
     expect(response.body.message).toBe("Item added to cart successfully");
     expect(response.body.cart.items).toEqual([
       { productId: "product-1", quantity: 2 },
@@ -105,7 +105,7 @@ describe("POST /api/cart/items", () => {
       .post("/api/cart/items")
       .send({ productId: "product-1", quantity: 2 });
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(201);
     expect(existingCart.items[0].quantity).toBe(3);
     expect(saveMock).toHaveBeenCalledTimes(1);
     expect(response.body.cart.items[0]).toEqual({

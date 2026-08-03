@@ -72,7 +72,7 @@ describe("POST /api/cart/items", () => {
       .post("/api/cart/items")
       .send({ productId: "prod_001", quantity: 2 });
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(201);
     expect(response.body.message).toBe("Item added to cart successfully");
     expect(response.body.cart).toBeDefined();
     expect(response.body.cart.user).toBe("buyer-123");
