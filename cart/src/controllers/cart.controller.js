@@ -167,7 +167,7 @@ async function deleteCart(req,res){
             });
         }
 
-        await cart.remove();
+        await cart.deleteOne();
 
         return res.status(200).json({
             success: true,
