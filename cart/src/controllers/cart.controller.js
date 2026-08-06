@@ -127,7 +127,7 @@ async function getCart(req,res) {
    try{
     const user = req.user;
 
-    const cart = await cartModel.findOne({
+    let cart = await cartModel.findOne({
         user : user.id,
     })
 
