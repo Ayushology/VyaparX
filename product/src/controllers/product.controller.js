@@ -435,6 +435,47 @@ async function getAllProductsBySeller(req, res) {
     });
   }
 }
+// UPDATE STOCK CONTROLLER
+
+async function decreaseStock(req, res) {
+  try {
+    const { id } = req.params;
+    const quantity = Number(req.body.quantity);
+
+    const product = await ProductModel.findOneAndUpdate(
+      {
+        _id: id,
+        stock: { $gte: quantity },
+      },
+      {
+        $inc: {
+          stock: -quantity,
+        },
+      },
+      {
+        returnDocument: "after",
+      }
+    );
+
+    if (!product) {
+      return res.status(400).json({
+        success: false,
+        message: "Insufficient stock",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      product,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+}
+
 module.exports = {
   createProduct,
   getProduct,
@@ -442,4 +483,5 @@ module.exports = {
   updateProduct,
   deleteProduct,
   getAllProductsBySeller,
+  decreaseStock,
 };
