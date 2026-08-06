@@ -3,5 +3,5 @@ const app = require("./src/app")
 const connectToDb = require("./src/config/db");
 connectToDb();
 app.listen(3002,()=>{
-    console.log("Server is running on port 3000");
+    console.log("Server is running on port 3002");
 })
