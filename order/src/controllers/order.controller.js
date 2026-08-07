@@ -201,38 +201,51 @@ async function getMyOrders(req, res) {
   }
 }
 async function getOrderById(req, res) {
-    try{
-         const user = req.user;
+  try {
+    const user = req.user;
     const orderId = req.params.id;
 
+    // Validate Order ID
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid order ID format."
+        message: "Invalid order ID format.",
       });
     }
 
+    // Find the order
     const order = await OrderModel.findById(orderId).lean();
 
-    if(!order){
-        return res.status(404).json({success:false,message : "Order Not Found"});
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found.",
+      });
     }
-    const isBuyer = order.user.toString() === String(user.id);
+
+    // Authorization checks
+    const isBuyer = String(order.user) === String(user.id);
+
     const isAdmin = user.role === "admin";
+
     const isSeller =
-  user.role === "seller" &&
-  order.items.some(
-    (item) => String(item.seller) === String(user.id)
-  );
+      user.role === "seller" &&
+      order.items.some(
+        (item) => String(item.seller) === String(user.id)
+      );
+
+    // Allow only buyer, admin, or seller involved in the order
     if (!isBuyer && !isAdmin && !isSeller) {
       return res.status(403).json({
         success: false,
-        message: "Forbidden: You don't have permission to view this order."
+        message: "Forbidden: You don't have permission to view this order.",
       });
     }
 
+    // Sellers can only view their own items
     let responseOrder = order;
-    if (isSeller && !isAdmin && !isBuyer) {
+
+    if (isSeller && !isBuyer && !isAdmin) {
       responseOrder = {
         ...order,
         items: order.items.filter(
@@ -240,66 +253,87 @@ async function getOrderById(req, res) {
         ),
       };
     }
-return res.status(200).json({
-  success: true,
-  order: responseOrder,
-});
-    
-    }catch(err){
-        console.log("Error in fetching the order",err);
-        return res.status(500).json({
-            success: false,
-            message : "Internal Server Error"
-        });
-    }
+
+    return res.status(200).json({
+      success: true,
+      order: responseOrder,
+    });
+  } catch (err) {
+    console.error("Get Order By ID Error:", err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
 }
 async function cancelOrder(req, res) {
-   try{
-     const user = req.user;
+  try {
+    const user = req.user;
     const orderId = req.params.id;
 
+    // Validate Order ID
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid order ID format."
+        message: "Invalid order ID format.",
       });
     }
+
+    // Find Order
     const order = await OrderModel.findById(orderId);
-    if(!order){
-        return res.status(404).json({success:false,message : "Order Not Found"});
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found.",
+      });
     }
-   if (order.user.toString() !== String(user.id) && user.role !== "admin") {
+
+    // Only the buyer or an admin can cancel the order
+    if (
+      String(order.user) !== String(user.id) &&
+      user.role !== "admin"
+    ) {
       return res.status(403).json({
         success: false,
         message: "Forbidden: You don't have permission to cancel this order.",
       });
     }
-    
-    if(order.status !== "PENDING"){
-        return res.status(400).json({
-            success: false,
-            message: "Only pending orders can be cancelled."
-          });
-    }
-    order.status = "CANCELLED";
-    order.timeline.push({
-        status: "CANCELLED",
-        timestamp: new Date(),
-    });
-    await order.save();
-    return res.status(200).json({
-        success: true,
-        message: "Order cancelled successfully.",
-        order
-      });
 
-   }catch(err){
-    console.log("Error in cancelling the order",err);
-    return res.status(500).json({
+    // Only pending orders can be cancelled
+    if (order.status !== "PENDING") {
+      return res.status(400).json({
         success: false,
-        message : "Internal Server Error"
+        message: "Only pending orders can be cancelled.",
+      });
+    }
+
+    // Update order status
+    order.status = "CANCELLED";
+
+    // Add cancellation event to timeline
+    order.timeline = order.timeline || [];
+    order.timeline.push({
+      status: "CANCELLED",
+      timestamp: new Date(),
     });
-   }
+
+    await order.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Order cancelled successfully.",
+      order,
+    });
+  } catch (err) {
+    console.error("Cancel Order Error:", err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
 }
 module.exports = {
   createOrder,
