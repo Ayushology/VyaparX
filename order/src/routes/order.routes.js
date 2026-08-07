@@ -9,4 +9,5 @@ router.post('/',createAuthMiddleware(['buyer']),orderController.createOrder);
 
 router.get('/me',createAuthMiddleware(['buyer']),orderController.getMyOrders)
 
+router
 module.exports = router;
