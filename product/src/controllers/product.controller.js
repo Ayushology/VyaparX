@@ -435,8 +435,38 @@ async function getAllProductsBySeller(req, res) {
     });
   }
 }
-// UPDATE STOCK CONTROLLER
+// CHECK STOCK CONTROLLER
+async function checkStock(req, res) {
+  try {
+    const { id } = req.params;
+    const { quantity } = req.query;
 
+    const product = await ProductModel.findById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    const requestedQuantity = Number(quantity);
+
+    return res.status(200).json({
+      success: true,
+      productId: product._id,
+      availableStock: product.stock,
+      requestedQuantity,
+      inStock: product.stock >= requestedQuantity,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+}
+// UPDATE STOCK CONTROLLER
 async function decreaseStock(req, res) {
   try {
     const { id } = req.params;
@@ -484,4 +514,5 @@ module.exports = {
   deleteProduct,
   getAllProductsBySeller,
   decreaseStock,
+  checkStock,
 };

@@ -18,6 +18,8 @@ router.get("/:id", productController.getProductById);
 router.patch("/:id", createAuthMiddleware(["admin", "seller"]), uploadProductImages, validateUpdateProduct,productController.updateProduct);
 // DELETE /api/products/:id
 router.delete("/:id",createAuthMiddleware(["seller","admin"]),productController.deleteProduct);
+// GET /api/products/:id/check-stock
+router.get("/:id/check-stock", productController.checkStock);
 // PATCH /api/products/:id/decrease-stock
 router.patch("/:id/decrease-stock",createAuthMiddleware(["buyer","seller","admin"]), productController.decreaseStock);
 
