@@ -150,10 +150,56 @@ async function createOrder(req, res) {
     });
   }
 }
-async function getOrderById(req, res) {
+async function getMyOrders(req, res) {
+  try {
+    const user = req.user;
+    const { page = 1, limit = 10 } = req.query;
 
+    const numericPage = Math.max(Number(page) || 1, 1);
+    const numericLimit = Math.max(Number(limit) || 10, 1);
+    const safeLimit = Math.min(numericLimit, 20);
+
+    const skip = (numericPage - 1) * safeLimit;
+
+    const filter = {
+      user: String(user.id),
+    };
+
+    const [orders, totalOrders] = await Promise.all([
+      OrderModel.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(safeLimit)
+        .lean()
+        .exec(),
+
+      OrderModel.countDocuments(filter),
+    ]);
+
+    const totalPages = Math.ceil(totalOrders / safeLimit) || 1;
+
+    return res.status(200).json({
+      success: true,
+      message: "Orders fetched successfully.",
+      pagination: {
+        totalOrders,
+        totalPages,
+        currentPage: numericPage,
+        pageSize: safeLimit,
+        count: orders.length,
+      },
+      orders,
+    });
+  } catch (err) {
+    console.error("Get My Orders Error:", err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+    });
+  }
 }
 module.exports = {
   createOrder,
-  getOrderById
+  getMyOrders
 };
