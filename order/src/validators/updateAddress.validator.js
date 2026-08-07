@@ -1,7 +1,5 @@
 const { body, validationResult } = require('express-validator');
 
-
-
 const respondWithValidationErrors = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -10,27 +8,27 @@ const respondWithValidationErrors = (req, res, next) => {
     next();
 }
 
-const createOrderValidation = [
+const updateAddressValidation = [
     body('shippingAddress.street')
         .isString()
         .withMessage('Street must be a string')
         .notEmpty()
-        .withMessage('Street is required'),
+        .withMessage('Street cannot be empty'),
     body('shippingAddress.city')
         .isString()
         .withMessage('City must be a string')
         .notEmpty()
-        .withMessage('City is required'),
+        .withMessage('City cannot be empty'),
     body('shippingAddress.state')
         .isString()
         .withMessage('State must be a string')
         .notEmpty()
-        .withMessage('State is required'),
+        .withMessage('State cannot be empty'),
     body('shippingAddress.pincode')
         .isString()
         .withMessage('Pincode must be a string')
         .notEmpty()
-        .withMessage('Pincode is required')
+        .withMessage('Pincode cannot be empty')
         .bail()
         .matches(/^\d{4,}$/)
         .withMessage('Pincode must be at least 4 digits'),
@@ -38,9 +36,8 @@ const createOrderValidation = [
         .isString()
         .withMessage('Country must be a string')
         .notEmpty()
-        .withMessage('Country is required'),
+        .withMessage('Country cannot be empty'),
     respondWithValidationErrors
 ]
 
-
-module.exports = { createOrderValidation };       
+module.exports = {updateAddressValidation};
