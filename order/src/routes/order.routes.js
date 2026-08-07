@@ -9,5 +9,7 @@ router.post('/',createAuthMiddleware(['buyer']),orderController.createOrder);
 
 router.get('/me',createAuthMiddleware(['buyer']),orderController.getMyOrders)
 
-router
+router.get('/:id',createAuthMiddleware(['buyer','seller','admin']),orderController.getOrderById)
+
+router.post('/:id/cancel',createAuthMiddleware(['buyer']),orderController.cancelOrder);
 module.exports = router;

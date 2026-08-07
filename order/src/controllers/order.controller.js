@@ -1,5 +1,6 @@
 const axios = require("axios").default;
 const OrderModel = require("../models/order.model");
+const mongoose = require("mongoose");
 
 async function createOrder(req, res) {
   const user = req.user;
@@ -199,7 +200,110 @@ async function getMyOrders(req, res) {
     });
   }
 }
+async function getOrderById(req, res) {
+    try{
+         const user = req.user;
+    const orderId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid order ID format."
+      });
+    }
+
+    const order = await OrderModel.findById(orderId).lean();
+
+    if(!order){
+        return res.status(404).json({success:false,message : "Order Not Found"});
+    }
+    const isBuyer = order.user.toString() === String(user.id);
+    const isAdmin = user.role === "admin";
+    const isSeller =
+  user.role === "seller" &&
+  order.items.some(
+    (item) => String(item.seller) === String(user.id)
+  );
+    if (!isBuyer && !isAdmin && !isSeller) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden: You don't have permission to view this order."
+      });
+    }
+
+    let responseOrder = order;
+    if (isSeller && !isAdmin && !isBuyer) {
+      responseOrder = {
+        ...order,
+        items: order.items.filter(
+          (item) => String(item.seller) === String(user.id)
+        ),
+      };
+    }
+return res.status(200).json({
+  success: true,
+  order: responseOrder,
+});
+    
+    }catch(err){
+        console.log("Error in fetching the order",err);
+        return res.status(500).json({
+            success: false,
+            message : "Internal Server Error"
+        });
+    }
+}
+async function cancelOrder(req, res) {
+   try{
+     const user = req.user;
+    const orderId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid order ID format."
+      });
+    }
+    const order = await OrderModel.findById(orderId);
+    if(!order){
+        return res.status(404).json({success:false,message : "Order Not Found"});
+    }
+   if (order.user.toString() !== String(user.id) && user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden: You don't have permission to cancel this order.",
+      });
+    }
+    
+    if(order.status !== "PENDING"){
+        return res.status(400).json({
+            success: false,
+            message: "Only pending orders can be cancelled."
+          });
+    }
+    order.status = "CANCELLED";
+    order.timeline.push({
+        status: "CANCELLED",
+        timestamp: new Date(),
+    });
+    await order.save();
+    return res.status(200).json({
+        success: true,
+        message: "Order cancelled successfully.",
+        order
+      });
+
+   }catch(err){
+    console.log("Error in cancelling the order",err);
+    return res.status(500).json({
+        success: false,
+        message : "Internal Server Error"
+    });
+   }
+}
 module.exports = {
   createOrder,
-  getMyOrders
+  getMyOrders,
+  getOrderById,
+  cancelOrder
 };

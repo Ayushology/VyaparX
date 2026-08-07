@@ -31,10 +31,12 @@ describe("GET /api/orders/me", () => {
       },
     }));
 
-    jest.doMock("../src/controllers/order.controller", () => ({
-      createOrder: jest.fn(),
-      getMyOrders: mockGetMyOrders,
-    }));
+   jest.doMock("../src/controllers/order.controller", () => ({
+  createOrder: jest.fn(),
+  getMyOrders: mockGetMyOrders,
+  getOrderById: jest.fn(),
+  cancelOrder: jest.fn(),
+}));
 
     const app = require("../src/app");
 
@@ -66,10 +68,11 @@ describe("GET /api/orders/me", () => {
     );
 
     jest.doMock("../src/controllers/order.controller", () => ({
-      createOrder: jest.fn(),
-      getMyOrders: mockGetMyOrders,
-    }));
-
+  createOrder: jest.fn(),
+  getMyOrders: mockGetMyOrders,
+  getOrderById: jest.fn(),
+  cancelOrder: jest.fn(),
+}));
     const app = require("../src/app");
 
     const res = await request(app).get("/api/orders/me");
@@ -102,10 +105,12 @@ describe("GET /api/orders/me", () => {
       },
     }));
 
-    jest.doMock("../src/controllers/order.controller", () => ({
-      createOrder: jest.fn(),
-      getMyOrders: mockGetMyOrders,
-    }));
+   jest.doMock("../src/controllers/order.controller", () => ({
+  createOrder: jest.fn(),
+  getMyOrders: mockGetMyOrders,
+  getOrderById: jest.fn(),
+  cancelOrder: jest.fn(),
+}));
 
     const app = require("../src/app");
 
