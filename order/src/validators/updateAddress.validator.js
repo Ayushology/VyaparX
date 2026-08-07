@@ -24,14 +24,14 @@ const updateAddressValidation = [
         .withMessage('State must be a string')
         .notEmpty()
         .withMessage('State cannot be empty'),
-    body('shippingAddress.pincode')
+    body('shippingAddress.zip')
         .isString()
-        .withMessage('Pincode must be a string')
+        .withMessage('Zip must be a string')
         .notEmpty()
-        .withMessage('Pincode cannot be empty')
+        .withMessage('Zi[] cannot be empty')
         .bail()
         .matches(/^\d{4,}$/)
-        .withMessage('Pincode must be at least 4 digits'),
+        .withMessage('Zip must be at least 4 digits'),
     body('shippingAddress.country')
         .isString()
         .withMessage('Country must be a string')

@@ -26,14 +26,14 @@ const createOrderValidation = [
         .withMessage('State must be a string')
         .notEmpty()
         .withMessage('State is required'),
-    body('shippingAddress.pincode')
+    body('shippingAddress.zip')
         .isString()
-        .withMessage('Pincode must be a string')
+        .withMessage('Zip must be a string')
         .notEmpty()
-        .withMessage('Pincode is required')
+        .withMessage('Zip is required')
         .bail()
         .matches(/^\d{4,}$/)
-        .withMessage('Pincode must be at least 4 digits'),
+        .withMessage('Zip must be at least 4 digits'),
     body('shippingAddress.country')
         .isString()
         .withMessage('Country must be a string')
