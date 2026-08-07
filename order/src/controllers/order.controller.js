@@ -291,10 +291,7 @@ async function cancelOrder(req, res) {
     }
 
     // Only the buyer or an admin can cancel the order
-    if (
-      String(order.user) !== String(user.id) &&
-      user.role !== "admin"
-    ) {
+    if (String(order.user) !== String(user.id) &&user.role !== "admin") {
       return res.status(403).json({
         success: false,
         message: "Forbidden: You don't have permission to cancel this order.",
