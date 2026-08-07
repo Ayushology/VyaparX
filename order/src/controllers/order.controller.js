@@ -332,10 +332,87 @@ async function cancelOrder(req, res) {
     });
   }
 }
+async function updateShippingAddress(req, res) {
+  try {
+    const user = req.user;
+    const orderId = req.params.id;
 
+    // Validate Order ID
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid order ID format.",
+      });
+    }
+
+    const { shippingAddress } = req.body || {};
+
+    // Validate shipping address
+    if (!shippingAddress) {
+      return res.status(400).json({
+        success: false,
+        message: "Shipping address is required to update the order.",
+      });
+    }
+
+    // Find the order
+    const order = await OrderModel.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found.",
+      });
+    }
+
+    // Only the buyer who placed the order or an admin can update it
+    if (
+      String(order.user) !== String(user.id) &&
+      user.role !== "admin"
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden: You do not have access to this order.",
+      });
+    }
+
+    // Shipping address can only be updated while the order is pending
+    if (order.status !== "PENDING") {
+      return res.status(409).json({
+        success: false,
+        message: "Order address cannot be updated at this stage.",
+      });
+    }
+
+    // Update shipping address
+    order.shippingAddress = {
+      street: shippingAddress.street,
+      city: shippingAddress.city,
+      state: shippingAddress.state,
+      zip: shippingAddress.zip,
+      country: shippingAddress.country,
+    };
+
+    await order.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Shipping address updated successfully.",
+      order,
+    });
+  } catch (err) {
+    console.error("Update Shipping Address Error:", err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+}
 module.exports = {
   createOrder,
   getMyOrders,
   getOrderById,
-  cancelOrder
+  cancelOrder,
+  updateShippingAddress
 };
