@@ -150,7 +150,10 @@ async function createOrder(req, res) {
     });
   }
 }
+async function getOrderById(req, res) {
 
+}
 module.exports = {
   createOrder,
+  getOrderById
 };

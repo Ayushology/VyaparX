@@ -7,5 +7,6 @@ const {createAuthMiddleware} = require('./auth.middleware')
 
 router.post('/',createAuthMiddleware(['buyer']),orderController.createOrder);
 
+router.get('/orders/:id',createAuthMiddleware(['buyer']),orderController.getOrderById)
 
 module.exports = router;    
