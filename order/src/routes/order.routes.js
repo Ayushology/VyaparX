@@ -2,7 +2,7 @@ const express = require('express')
 
 const router = express.Router();
 const orderController = require('../controllers/order.controller');
-const {createAuthMiddleware} = require('./auth.middleware')
+const {createAuthMiddleware} = require('../middlewares/auth.middleware')
 const {createOrderValidation} = require('../validators/order.validator')
 const {updateAddressValidation} = require('../validators/updateAddress.validator')
 router.post('/',createAuthMiddleware(['buyer']),createOrderValidation,orderController.createOrder);
