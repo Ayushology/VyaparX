@@ -2,6 +2,7 @@ const axios = require("axios").default;
 const OrderModel = require("../models/order.model");
 const mongoose = require("mongoose");
 
+// Create a new order
 async function createOrder(req, res) {
   const user = req.user;
 
@@ -151,6 +152,7 @@ async function createOrder(req, res) {
     });
   }
 }
+// Get orders for the logged-in user with pagination
 async function getMyOrders(req, res) {
   try {
     const user = req.user;
@@ -200,6 +202,7 @@ async function getMyOrders(req, res) {
     });
   }
 }
+// Get order by ID with authorization checks
 async function getOrderById(req, res) {
   try {
     const user = req.user;
@@ -267,6 +270,7 @@ async function getOrderById(req, res) {
     });
   }
 }
+// Cancel order with authorization and status checks
 async function cancelOrder(req, res) {
   try {
     const user = req.user;
@@ -332,6 +336,7 @@ async function cancelOrder(req, res) {
     });
   }
 }
+// Update shipping address for an order with authorization and status checks
 async function updateShippingAddress(req, res) {
   try {
     const user = req.user;
