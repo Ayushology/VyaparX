@@ -3,9 +3,11 @@ product/node_modules/
 cart/node_modules/
 order/node_modules/
 ai-buddy/node_modules/
+payment/node_modules/
 coverage/
 auth/.env
 product/.env
 cart/.env   
 order/.env
 ai-buddy/.env
+payment/.env

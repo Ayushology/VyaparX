@@ -5,7 +5,7 @@ const { ToolMessage, AIMessage } = require("@langchain/core/messages");
 const tools = require("./tools");
 
 const model = new ChatGoogleGenerativeAI({
-    model: "gemini-3.6-flash",
+    model: "gemini-3.5-flash-lite",
     temperature: 0.5,
 });
 
