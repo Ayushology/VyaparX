@@ -13,98 +13,103 @@ const model = new ChatGoogleGenerativeAI({
 
 const graph = new StateGraph(MessagesAnnotation)
 
-.addNode("tools", async (state, config) => {
+    .addNode("tools", async (state, config) => {
+        const lastMessage =
+            state.messages[state.messages.length - 1];
 
-    const lastMessage =
-        state.messages[state.messages.length - 1];
+        const toolsCall = lastMessage.tool_calls;
 
-    const toolsCall = lastMessage.tool_calls;
+        const toolCallResults = await Promise.all(
+            toolsCall.map(async (call) => {
+                const tool = tools[call.name];
 
-    const toolCallResults = await Promise.all(
-        toolsCall.map(async (call) => {
-
-            const tool = tools[call.name];
-
-            if (!tool) {
-              return new ToolMessage({
-                        content: JSON.stringify({ error: `Tool '${call.name}' not found` }),
-                        name: call.name,
-                        tool_call_id: call.id,
-              })
-            }
-
-            try{
-                    const toolInput = call.args;
-
-            console.log(
-                "Invoking tool:",
-                call.name,
-                "with input:",
-                call
-            );
-
-            const toolResult = await tool.func({
-                ...toolInput,
-                token: config.metadata.token || config?.configurable?.token,
-            });
-
-            return new ToolMessage({
-                content: JSON.stringify(toolResult),
-                name: call.name,
-                tool_call_id: call.id
-            });
-            }catch(err){
-                console.error(`[AI Buddy] Error in tool '${call.name}':`, err.message);
-                    
+                if (!tool) {
                     return new ToolMessage({
                         content: JSON.stringify({
-                            error: `Failed to execute ${call.name}: ${err.response?.data?.message || err.message}`
+                            error: `Tool '${call.name}' not found`,
                         }),
                         name: call.name,
                         tool_call_id: call.id,
                     });
-            }
-        
-        })
-    );
+                }
 
-    state.messages.push(...toolCallResults);
+                try {
+                    const toolInput = call.args;
 
-    return state;
-})
+                    console.log(
+                        "Invoking tool:",
+                        call.name,
+                        "with input:",
+                        call
+                    );
 
-.addNode("chat", async (state) => {
+                    const toolResult = await tool.func({
+                        ...toolInput,
+                        token:
+                            config.metadata.token ||
+                            config?.configurable?.token,
+                    });
 
-   const response = await model.invoke(state.messages);
+                    return new ToolMessage({
+                        content: JSON.stringify(toolResult),
+                        name: call.name,
+                        tool_call_id: call.id,
+                    });
+                } catch (err) {
+                    console.error(
+                        `[AI Buddy] Error in tool '${call.name}':`,
+                        err.message
+                    );
 
-    state.messages.push(
-        new AIMessage({
-            content: response.text,
-            tool_calls: response.tool_calls
-        })
-    );
+                    return new ToolMessage({
+                        content: JSON.stringify({
+                            error: `Failed to execute ${call.name}: ${
+                                err.response?.data?.message ||
+                                err.message
+                            }`,
+                        }),
+                        name: call.name,
+                        tool_call_id: call.id,
+                    });
+                }
+            })
+        );
 
-    return state;
-})
+        state.messages.push(...toolCallResults);
 
-.addEdge("__start__", "chat")
+        return state;
+    })
 
-.addConditionalEdges("chat", async (state) => {
+    .addNode("chat", async (state) => {
+        const response = await model.invoke(state.messages);
 
-    const lastMessage =
-        state.messages[state.messages.length - 1];
+        state.messages.push(
+            new AIMessage({
+                content: response.text,
+                tool_calls: response.tool_calls,
+            })
+        );
 
-    if (
-        lastMessage.tool_calls &&
-        lastMessage.tool_calls.length > 0
-    ) {
-        return "tools";
-    }
+        return state;
+    })
 
-    return "__end__";
-})
+    .addEdge("__start__", "chat")
 
-.addEdge("tools", "chat");
+    .addConditionalEdges("chat", async (state) => {
+        const lastMessage =
+            state.messages[state.messages.length - 1];
+
+        if (
+            lastMessage.tool_calls &&
+            lastMessage.tool_calls.length > 0
+        ) {
+            return "tools";
+        }
+
+        return "__end__";
+    })
+
+    .addEdge("tools", "chat");
 
 const agent = graph.compile();
 
