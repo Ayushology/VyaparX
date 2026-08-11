@@ -1,10 +1,15 @@
 const express = require('express')
-const {connect} = require('../src/broker/broker')
+const {connect,subscribeToQueue} = require('../src/broker/broker')
+const setListeners = require('../src/broker/listeners')
+
 const app = express();
-
-app.get('/',(req,res)=>{
-    res.send("Notification Service is up and running.")
+connect().then(() => {
+    setListeners();
 })
-
+app.get("/", (req, res) => {
+    res.status(200).json({
+        message: "Notification service is running"
+    });
+})
 
 module.exports = app;
