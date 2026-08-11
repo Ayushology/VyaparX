@@ -41,4 +41,4 @@ const sendEmail = async (to, subject, text, html) => {
 
 // sendEmail("vineetrathi2005@gmail.com","Registration Successful : VyaparX","This is a Email from VyaparX-The Next Generation Marketplace","<h1>Welcome to VyaparX</h1><p>Thank you for registering with us. We are excited to have you on board!</p>");
 
-module.exports = sendEmail;
+module.exports = {sendEmail};
