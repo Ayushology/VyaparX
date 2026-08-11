@@ -2,6 +2,7 @@
   const bcrypt = require('bcrypt');
   const jwt = require('jsonwebtoken')
   const redis = require('../db/redis')
+  const {publishToqueue} = require('../broker/broker')
 // REGISTER CONTROLLER
   async function registerUser(req, res) {
   
@@ -37,6 +38,14 @@
         fullName: {
           firstName, lastName
         }
+      });
+
+      await publishToqueue('AUTH_NOTIFICATION.USER_CREATED', {
+        userId: user._id,
+        email: user.email,
+        username: user.username,
+        fullName: user.fullName,
+        role: user.role
       });
 
       const token = jwt.sign({
