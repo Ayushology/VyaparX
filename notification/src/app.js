@@ -1,15 +1,21 @@
 const express = require('express')
 const {connect,subscribeToQueue} = require('../src/broker/broker')
-const setListeners = require('../src/broker/listeners')
+const initializeAuthSubscribers = require('../src/subscribers/authSubscriber')
 
 const app = express();
-connect().then(() => {
-    setListeners();
+connect()
+.then(() => {
+   console.log('[Broker] Successfully connected. Initializing listeners...');
+        initializeAuthSubscribers();
 })
+.catch((error) => {
+        console.error('[Broker] Failed to connect on startup:', error.message);
+    });
 app.get("/", (req, res) => {
     res.status(200).json({
-        message: "Notification service is running"
+        service: "Notification Service",
+        status: "Running",
+        timestamp: new Date().toISOString()
     });
-})
-
+});
 module.exports = app;
