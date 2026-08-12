@@ -1,5 +1,6 @@
 const { subscribeToQueue } = require("../broker/broker");
 const { sendEmail } = require("../email");
+const {getWelcomeEmailTemplate} = require('../templates/emailTemplates')
 module.exports = function () {
     subscribeToQueue(
         'AUTH_NOTIFICATION.USER_CREATED',
@@ -18,7 +19,7 @@ module.exports = function () {
 
             await sendEmail(
                 data.email,
-                "Welcome to Our Service",
+                "Welcome to VyaparX",
                 "Thank you for registering with us!",
                 emailHTMLTemplate
             );
