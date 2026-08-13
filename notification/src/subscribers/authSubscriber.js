@@ -21,7 +21,7 @@ module.exports = function initializeAuthSubscribers () {
             );
             console.log(`[Broker] Successfully processed welcome email for: ${data.email}`);
             }catch(err){
-                console.error(`[Broker] Failed to process ${QUEUE_EVENTS.USER_CREATED} for ${data.email}:`, error.message);
+                console.error(`[Broker] Failed to process ${QUEUE_EVENTS.USER_CREATED} for ${data.email}:`, err.message);
             }
         }
     );
