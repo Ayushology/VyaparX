@@ -9,7 +9,7 @@
 **Auth**: JWT (access+refresh, httpOnly), Google (Passport).
 **Security**: Helmet, CORS, CSRF (double-submit), XSS sanitize, rate limit (Redis), RBAC.
 **Observability**: Morgan + Pino, request-id, CloudWatch.
-
+++
 ---
 
 ## 1) API Endpoints by Service (2–3 line descriptions)
