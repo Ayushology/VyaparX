@@ -12,6 +12,8 @@
 ++
 ---
 
+
+
 ## 1) API Endpoints by Service (2–3 line descriptions)
 
 > All routes are versioned implicitly as v1 via base path (e.g., /products). Add x-request-id for correlation. Validation via express-validator/zod. Descriptions note auth and idempotency when relevant.
