@@ -19,6 +19,7 @@
 > All routes are versioned implicitly as v1 via base path (e.g., /products). Add x-request-id for correlation. Validation via express-validator/zod. Descriptions note auth and idempotency when relevant.
 > 
 
+
 ### 1.1 Auth Service
 
 - **POST `/auth/register`** – Create account as USER or SELLER. Validates email uniqueness, hashes password, issues refresh+access tokens. Emits `user.created`.
