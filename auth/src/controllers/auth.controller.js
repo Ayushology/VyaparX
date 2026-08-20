@@ -1,7 +1,7 @@
   const userModel = require('../models/user.model');
   const bcrypt = require('bcrypt');
   const jwt = require('jsonwebtoken')
-  const redis = require('../db/redis')
+  const redis = require('../config/redis')
   const {publishToqueue} = require('../broker/broker')
 // REGISTER CONTROLLER
   async function registerUser(req, res) {
