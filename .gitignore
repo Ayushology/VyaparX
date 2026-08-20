@@ -5,6 +5,7 @@ order/node_modules/
 ai-buddy/node_modules/
 payment/node_modules/
 notification/node_modules/
+seller-dashboard/node_modules/
 coverage/
 auth/.env
 product/.env
@@ -13,3 +14,4 @@ order/.env
 ai-buddy/.env
 payment/.env
 notification/.env
+seller-dashboard/.env
