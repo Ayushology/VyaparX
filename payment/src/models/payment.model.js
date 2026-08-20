@@ -17,7 +17,7 @@ const paymentSchema = new mongoose.Schema({
     
 
     price: {                  // Added to prevent partial payment exploits
-        amount: { type: Number, required: true },
+        amount: { type: Number, required: true, min : 1},
         currency: { type: String, required: true, default: 'INR', enum: ['INR', 'USD'] }
     },
 
@@ -29,9 +29,10 @@ const paymentSchema = new mongoose.Schema({
         trim: true
     },
     razorpayPaymentId: { 
-        type: String,
-        trim: true,
-        sparse: true 
+       type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
     },
     razorpaySignature: { 
         type: String,
@@ -42,8 +43,12 @@ const paymentSchema = new mongoose.Schema({
     status: { 
         type: String, 
         enum: ['PENDING', 'COMPLETED', 'FAILED'], 
-        default: "PENDING" 
-    }
+        default: "PENDING",
+          index: true,
+    },
+       paidAt: {
+      type: Date,
+    },
 }, { 
     timestamps: true 
 });

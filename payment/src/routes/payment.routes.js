@@ -4,5 +4,6 @@ const paymentController = require('../controllers/payment.controller')
 const router = express.Router();
 
 router.post('/:orderId',createAuthMiddleware(['buyer']),paymentController.createPayment)
+router.post('/verify',createAuthMiddleware(['buyer']),paymentController.createPayment)
 
 module.exports = router;
