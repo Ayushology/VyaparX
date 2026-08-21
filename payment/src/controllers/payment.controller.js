@@ -148,6 +148,10 @@ async function verifyPayment(req, res) {
       razorpayOrderId,
       userId: req.user.id,
     });
+console.log("razorpayOrderId:", razorpayOrderId);
+console.log("razorpayPaymentId:", razorpayPaymentId);
+console.log("razorpaySignature:", razorpaySignature);
+console.log("DB razorpayOrderId:", payment?.razorpayOrderId);
 
     if (!payment) {
       return res.status(404).json({
