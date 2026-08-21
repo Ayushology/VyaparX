@@ -8,7 +8,28 @@ const getWelcomeEmailTemplate = (firstName, lastName = "") => {
         <p>Best regards,<br/>The VyaparX Team</p>
     `;
 };
+const getPaymentSuccessEmailTemplate = (username, orderId, paymentId, amount, currency) => {
+  return `
+      <h1>Payment Successful!</h1>
+      <p>Dear ${username},</p>
+      <p>Your payment of ${amount} ${currency} for order ${orderId} has been processed successfully.</p>
+      <p>Payment ID: ${paymentId}</p>
+      <p>Best regards,<br/>The VyaparX Team</p>
+  `;
+};
+
+const getPaymentFailedEmailTemplate = (username, orderId, paymentId) => {
+  return `
+      <h1>Payment Failed</h1>
+      <p>Dear ${username},</p>
+      <p>Your payment for order ${orderId} has failed.</p>
+      <p>Payment ID: ${paymentId}</p>
+      <p>Best regards,<br/>The VyaparX Team</p>
+  `;
+};
 
 module.exports = {
-    getWelcomeEmailTemplate
+    getWelcomeEmailTemplate,
+    getPaymentSuccessEmailTemplate,
+    getPaymentFailedEmailTemplate
 };

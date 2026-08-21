@@ -192,6 +192,7 @@ async function verifyPayment(req, res) {
       amount: payment.price.amount / 100,
       currency: payment.price.currency,
       username: req.user.username,
+      fullName: req.user.firstName + " " + req.user.lastName
     });
 
     return res.status(200).json({
