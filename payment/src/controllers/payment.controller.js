@@ -1,6 +1,6 @@
 const paymentModel = require("../models/payment.model");
 const axios = require("axios");
-
+const {publishToqueue} = require('../broker/broker')
 const {
   validatePaymentVerification,
 } = require("razorpay/dist/utils/razorpay-utils");
@@ -184,6 +184,16 @@ async function verifyPayment(req, res) {
 
     await payment.save();
 
+
+    await publishToqueue("PAYMENT_NOTIFICATION.PAYMENT_COMPLETED", {
+      email: req.user.email,
+      orderId: payment.vyaparxOrderId,
+      paymentId: payment.razorpayPaymentId,
+      amount: payment.price.amount / 100,
+      currency: payment.price.currency,
+      username: req.user.username,
+    });
+
     return res.status(200).json({
       message: "Payment verified successfully",
       payment,
@@ -191,6 +201,11 @@ async function verifyPayment(req, res) {
   } catch (err) {
     console.error("Verify Payment Error:", err);
 
+    await publishToqueue("PAYMENT_NOTIFICATION.PAYMENT_FAILED", {
+      email: req.user.email,
+      orderId: req.body.orderId,
+      paymentId: req.body.razorpayPaymentId
+    });
     return res.status(500).json({
       message: "Internal server error",
     });
