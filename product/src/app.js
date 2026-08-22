@@ -3,7 +3,9 @@ const cookieParser = require('cookie-parser')
 const productRoutes = require('./routes/product.routes')
 
 const app = express();
-
+app.get('/', (req, res) => {
+  res.status(200).json({ message: "Welcome to the Product Service" });
+});
 app.use(express.json());
 app.use(cookieParser());
 app.use('/api/products',productRoutes);

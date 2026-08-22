@@ -2,6 +2,9 @@ const express = require('express')
 const orderRoutes = require('./routes/order.routes')
 const cookieParser = require('cookie-parser')
 const app = express();
+app.get('/', (req, res) => {
+  res.status(200).json({ message: "Welcome to the Order Service" });
+});
 app.use(express.json());
 app.use(cookieParser())
 app.use('/api/orders',orderRoutes);
