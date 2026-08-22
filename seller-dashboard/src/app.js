@@ -1,11 +1,19 @@
-const express  = require('express')
-
+const express = require('express');
 const cookieParser = require('cookie-parser');
+const sellerRoutes = require('./routes/sellerdashboard.routes');
+
 const app = express();
-const sellerDashboardRoute = require('./routes/sellerdashboard.routes')
+
 
 app.use(express.json());
 app.use(cookieParser());
-app.use('/api/seller-dashboard',sellerDashboardRoute);
+
+
+app.get('/', (req, res) => {
+    res.status(200).json({ message: 'Seller Dashboard Service is running.' });
+});
+
+app.use("/api/seller/dashboard", sellerRoutes);
+
 
 module.exports = app;
