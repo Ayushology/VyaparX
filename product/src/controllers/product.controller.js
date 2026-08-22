@@ -3,7 +3,7 @@ const escapeRegex = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const { uploadImage } = require("../services/imagekit.service");
 const { deleteBulkImages } = require("../services/imagekit.service")
 const mongoose = require("mongoose");
-
+const {publishToqueue} = require('../broker/broker')
 // CREATE PRODUCT CONTROLLER
 async function createProduct(req, res) {
   try {
@@ -77,7 +77,12 @@ async function createProduct(req, res) {
       seller,
       images: formattedImages,
     });
-
+    await publishToqueue('PRODUCT_SELLER_DASHBOARD.PRODUCT_CREATED',product);
+    await publishToqueue('PRODUCT_NOTIFICATION.PRODUCT_CREATED',{ 
+      email : req.user.email,
+      username : req.user.username,
+      productId: product._id , 
+      sellerId : seller});
     return res.status(201).json({
       success: true,
       data: product,
