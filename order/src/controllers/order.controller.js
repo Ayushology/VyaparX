@@ -1,7 +1,7 @@
 const axios = require("axios").default;
 const OrderModel = require("../models/order.model");
 const mongoose = require("mongoose");
-
+const { publishToqueue } = require("../broker/broker");
 // Create a new order
 async function createOrder(req, res) {
   const user = req.user;
@@ -122,7 +122,9 @@ async function createOrder(req, res) {
       shippingAddress,
       status: "PENDING",
     });
-   
+    
+    await publishToqueue('ORDER_SELLER_DASHBOARD.ORDER_CREATED',newOrder);
+
 
     // Clear cart after successful order creation
     try {
