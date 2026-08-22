@@ -40,13 +40,18 @@
         }
       });
 
-      await publishToqueue('AUTH_NOTIFICATION.USER_CREATED', {
+         await Promise.all([
+ publishToqueue('AUTH_NOTIFICATION.USER_CREATED', {
         userId: user._id,
         email: user.email,
         username: user.username,
         fullName: user.fullName,
         role: user.role
-      });
+      }),
+      publishToqueue('AUTH_SELLER_DASHBOARD.USER_CREATED',
+        user
+      )
+      ])
 
       const token = jwt.sign({
         id : user._id,
